@@ -451,8 +451,6 @@ console.log(groupsByAge.get(30)); // [ { name: 'John' }, { name: 'Alice' } ]
 // Access or iterate over users grouped by their age
 ```
 
-My apologies, I haven't reached the full details of all five functions yet. Here's the complete description for each, including code, complexity, considerations, and an example:
-
 ### 11. isPromiseLike(obj: any): obj is Promise<any>
 
 **Description:**
@@ -674,8 +672,6 @@ const resizeHandler = debounce(
 
 window.addEventListener("resize", resizeHandler); // Window resize event only triggers 250ms after the last change.
 ```
-
-Absolutely! Here are the next two functions in our journey:
 
 ### 16. throttle<T>(fn: (...args: any[]) => T, limit: number, interval: number): (...args: any[]) => void
 
@@ -911,7 +907,7 @@ const result2 = add(1, addTwo(4)); // 7
 console.log(result1, result2);
 ```
 
-## 21. memoizeBy(keyFn: (args: any[]) => any, fn: (...args: any[]) => any): (...args: any[]) => any
+### 21. memoizeBy(keyFn: (args: any[]) => any, fn: (...args: any[]) => any): (...args: any[]) => any
 
 **Description:**
 
@@ -970,7 +966,7 @@ const dist2 = memoizedDistance(1, 2, 3, 4);
 console.log(dist1 === dist2); // true
 ```
 
-## 22. groupBy(arr: T[], prop?: keyof T | ((item: T) => any)): Map<any, T[]>
+### 22. groupBy(arr: T[], prop?: keyof T | ((item: T) => any)): Map<any, T[]>
 
 **Description:**
 
@@ -1039,7 +1035,7 @@ const groupsByFirstLetter = groupBy(users, (user) => user.name[0]);
 console.log(groupsByFirstLetter.get("J")); // [ { name: 'John', age: 30 }, { name: 'Jane', age: 25 } ]
 ```
 
-23. deepFlatten<T>(arr: T[] | T[][] | T[][][]): T[]
+### 23. deepFlatten<T>(arr: T[] | T[][] | T[][][]): T[]
 
 **Description:**
 
@@ -1310,7 +1306,7 @@ const firstEven = reduceRightWhile(
 console.log(firstEven); // 4
 ```
 
-## 29. shuffleInPlace<T>(arr: T[]): void
+### 29. shuffleInPlace<T>(arr: T[]): void
 
 **Description:**
 
@@ -1345,7 +1341,7 @@ shuffleInPlace(cards);
 console.log(cards); // Output order is random each time
 ```
 
-## 30. groupByLongest(arr: string[], delim: string = ','): { [key: string]: string[] }
+### 30. groupByLongest(arr: string[], delim: string = ','): { [key: string]: string[] }
 
 **Description:**
 
@@ -1525,7 +1521,7 @@ const filteredData = deepFilter(data, (value) => typeof value !== "boolean"); //
 console.log(filteredData);
 ```
 
-33. memoizeLast<T, R>(fn: (args: T) => R): (args: T) => R
+### 33. memoizeLast<T, R>(fn: (args: T) => R): (args: T) => R
 
 **Description:**
 
@@ -1897,3 +1893,445 @@ const fruits = ["apple", "banana", "orange", "apple", "grape", "banana"];
 const fruitCounts = groupByCount(fruits);
 console.log(fruitCounts); // { apple: 2, banana: 2, orange: 1, grape: 1 }
 ```
+
+### 41. differenceBetweenArrays<T>(arr1: T[], arr2: T[]): T[]
+
+**Description:** Determines the difference between two arrays, returning an array containing elements that are present in the first array but not in the second.
+
+**Function Code:**
+
+```typescript
+function differenceBetweenArrays<T>(arr1: T[], arr2: T[]): T[] {
+  return arr1.filter((item) => !arr2.includes(item));
+}
+```
+
+**Space and Time Complexity:**
+
+- Space: O(n + m) where n and m are the lengths of arr1 and arr2, respectively, as we create a new array of the filtered elements.
+- Time: O(n \* m) in the worst case, as the `includes` method has a time complexity of O(m) for each element in arr1.
+
+**Considerations:**
+
+- For large arrays, performance can be optimized by using a Set for arr2, as Set lookups have a time complexity of O(1).
+- If you need to handle duplicate elements within arrays, you might need to adjust the logic accordingly.
+
+**Code Example:**
+
+```typescript
+const numbers1 = [1, 2, 3, 4, 5];
+const numbers2 = [2, 4, 6];
+
+const difference = differenceBetweenArrays(numbers1, numbers2); // [1, 3, 5]
+
+console.log(difference);
+```
+
+### 42. generateRandomString
+
+**Description:** Generates a random string of a specified length with specified characters.
+
+**Function Code:**
+
+```typescript
+function generateRandomString(
+  length: number,
+  characters: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+): string {
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
+```
+
+**Space and Time Complexity:**
+
+- Space: O(length) as we create a string of the specified length.
+- Time: O(length) as we loop through the desired length and randomly choose characters.
+
+**Considerations:**
+
+- You can customize the `characters` parameter to include specific characters, symbols, or even exclude certain ones.
+- Be mindful of generating secure random strings for sensitive applications.
+
+**Code Example:**
+
+```typescript
+const randomString1 = generateRandomString(10); // "e7T42s98hK"
+const randomString2 = generateRandomString(5, "!@#$%^&*"); // "k%9&!"
+
+console.log(randomString1, randomString2);
+```
+
+### 43. hasAllKeys<T>(obj: T, keys: string[]): boolean
+
+This function was already provided but here it is again with a more detailed description:
+
+**Description:** Verifies whether an object possesses all the specified keys.
+
+**Function Code:**
+
+```typescript
+function hasAllKeys<T>(obj: T, keys: string[]): boolean {
+  return keys.every((key) => Object.prototype.hasOwnProperty.call(obj, key));
+}
+```
+
+**Example:**
+
+```typescript
+const user = { name: "John", age: 30 };
+const hasRequiredKeys = hasAllKeys(user, ["name", "age", "email"]); // false
+
+console.log(hasRequiredKeys);
+```
+
+### 44. pickKeys<T, K extends keyof T>(obj: T, keys: K[]): T[K] & Record<Exclude<keyof T, K>, undefined>
+
+**Description:** Creates a new object from an existing one, containing only the specified keys and setting all other keys to `undefined`.
+
+**Function Code:**
+
+```typescript
+function pickKeys<T, K extends keyof T>(
+  obj: T,
+  keys: K[]
+): T[K] & Record<Exclude<keyof T, K>, undefined> {
+  const pickedObj: T[K] & Record<Exclude<keyof T, K>, undefined> = {} as T[K] &
+    Record<Exclude<keyof T, K>, undefined>;
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      pickedObj[key] = obj[key];
+    }
+  }
+  return pickedObj;
+}
+```
+
+**Example:**
+
+```typescript
+const user = { name: "John", age: 30, email: "example@domain.com" };
+const userSelection = pickKeys(user, ["name", "age"]); // { name: 'John', age: 30, email: undefined }
+
+console.log(userSelection);
+```
+
+**Considerations:**
+
+- `K` represents a generic type parameter specifying the type of keys to include.
+- The return type combines the selected key types with `undefined` for excluded keys.
+- It uses strict property existence checks and doesn't consider inherited properties.
+
+### 45. randomItem<T>(arr: T[]): T
+
+**Description:** Selects a random element from an array.
+
+**Function Code:**
+
+```typescript
+function randomItem<T>(arr: T[]): T {
+  const randomIndex = Math.floor(Math.random() * arr.length);
+  return arr[randomIndex];
+}
+```
+
+**Space and Time Complexity:**
+
+- Space: O(1) as it doesn't create additional data structures.
+- Time: O(1) as accessing elements by index in an array is constant time.
+
+**Considerations:**
+
+- This function assumes the array contains at least one element.
+- You can generate multiple random items by calling the function repeatedly.
+
+**Code Example:**
+
+```typescript
+const colors = ["red", "green", "blue"];
+const randomColor = randomItem(colors); // "red" or "green" or "blue"
+
+console.log(randomColor);
+```
+
+Coming right up! Here are the next two functions in the alphabetical order:
+
+### 46. sleep(ms: number): Promise<void>
+
+**Description:** Delays the execution of the subsequent code for a specified number of milliseconds.
+
+**Function Code:**
+
+```typescript
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+```
+
+**Space and Time Complexity:**
+
+- Space: O(1) as it only creates a single promise object.
+- Time: O(ms) as the execution is delayed for the specified number of milliseconds.
+
+**Considerations:**
+
+- This function uses asynchronous patterns and should be used within an asynchronous context like promise chains or async/await.
+- The actual delay might be slightly longer than the specified milliseconds due to internal timer resolution limitations.
+
+**Code Example:**
+
+```typescript
+async function fetchData() {
+  await sleep(1000); // waits for 1 second before fetching data
+  const data = await fetch("https://example.com/api/data");
+  // ... process data
+}
+
+fetchData().then(() => console.log("Data fetched!"));
+```
+
+### 47. retry<T>(fn: () => Promise<T>, options?: { attempts?: number, delay?: number, onFail?: (error: Error) => void }): Promise<T>
+
+**Description:** Automatically retries a failing asynchronous function a specified number of times with an optional delay in between attempts, improving reliability and handling transient errors.
+
+**Function Code:**
+
+```typescript
+async function retry<T>(
+  fn: () => Promise<T>,
+  options?: {
+    attempts?: number;
+    delay?: number;
+    onFail?: (error: Error) => void;
+  }
+): Promise<T> {
+  const { attempts = 3, delay = 1000, onFail } = options ?? {};
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (i === attempts) {
+        throw error;
+      }
+      if (onFail) {
+        onFail(error);
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+  throw new Error("All retries failed");
+}
+```
+
+**Space and Time Complexity:**
+
+- Space: O(1) as it only stores temporary variables for state management.
+- Time: O(attempts \* (fn execution time + delay)) depending on the number of attempts and actual execution time of the function.
+
+**Considerations:**
+
+- Configure the number of attempts and delay based on the potential error type and acceptable retry behavior.
+- Provide an optional `onFail` callback to handle individual error occurrences during retries.
+
+**Code Example:**
+
+```typescript
+const sendOrder = async (orderData) => {
+  // Simulate potential network error
+  if (Math.random() < 0.2) {
+    throw new Error("Network error occurred");
+  }
+  // Actual order submission logic
+  return await fetch("https://api.example.com/orders", {
+    method: "POST",
+    body: JSON.stringify(orderData),
+  });
+};
+
+const submitOrder = async (orderData) => {
+  return await retry(() => sendOrder(orderData), { attempts: 5, delay: 2000 });
+};
+
+// Attempt to submit the order, retrying on network errors
+submitOrder(orderData)
+  .then(() => console.log("Order submitted successfully!"))
+  .catch(() => console.error("Order submission failed"));
+```
+
+### 48. throttleConcurrent<T>(promises: Promise<T>[], maxConcurrency: number): Promise<T[]>
+
+**Description:** Limits the number of concurrently running promises while awaiting their resolution, returning an array containing the resolved values in the same order as the input promises.
+
+**Function Code:**
+
+```typescript
+async function throttleConcurrent<T>(
+  promises: Promise<T>[],
+  maxConcurrency: number
+): Promise<T[]> {
+  const results: T[] = [];
+  const runningPromises: Promise<T>[] = [];
+
+  for (const promise of promises) {
+    runningPromises.push(promise);
+    if (runningPromises.length === maxConcurrency) {
+      const resolvedPromise = await Promise.race(runningPromises);
+      results.push(resolvedPromise);
+      runningPromises.splice(runningPromises.indexOf(resolvedPromise), 1);
+    }
+  }
+
+  await Promise.all(runningPromises); // wait for remaining promises to resolve
+  results.push(...runningPromises.map((p) => p.then((v) => v)));
+
+  return results;
+}
+```
+
+**Space and Time Complexity:**
+
+- Space: O(maxConcurrency) due to storing concurrent promises in an internal queue.
+- Time: O(longestPromise) as it waits for the longest-running promise to resolve before returning the results array. However, the overall execution can be faster by limiting concurrent tasks and maximizing utilization.
+
+**Considerations:**
+
+- This function is ideal for situations where overwhelming the system with too many concurrent asynchronous operations could be detrimental.
+- Adjust the `maxConcurrency` parameter based on your system's capacity and desired balance between processing speed and resource utilization.
+
+**Code Example:**
+
+```typescript
+const fetchImages = async (imageUrl) => {
+  const response = await fetch(imageUrl);
+  return await response.blob();
+};
+
+const imageUrls = [
+  "https://example.com/image1.jpg",
+  "https://example.com/image2.png",
+  "https://example.com/image3.gif",
+];
+
+const images = await throttleConcurrent(imageUrls.map(fetchImages), 2); // Fetches images with a maximum of 2 concurrent operations, returning an array of downloaded images
+
+console.log(images); // Array of downloaded image Blobs
+```
+
+### 49. debouncedFetch<T>(url: string, options?: RequestInit): Promise<Response>
+
+**Description:** Implements a debounced fetching mechanism, preventing unnecessary network requests due to rapid user actions or repeated calls.
+
+**Function Code:**
+
+```typescript
+let timer: any;
+
+async function debouncedFetch<T>(
+  url: string,
+  options?: RequestInit
+): Promise<Response> {
+  return new Promise((resolve, reject) => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      try {
+        const response = await fetch(url, options);
+        resolve(response);
+      } catch (error) {
+        reject(error);
+      }
+    }, delay);
+  });
+}
+```
+
+**Space and Time Complexity:**
+
+- Space: O(1) due to only using a single timer for debouncing.
+- Time: O(delay) for initial wait before actual fetch, then depends on network and response processing time.
+
+**Considerations:**
+
+- Set the delay duration based on your desired responsiveness and tolerance for potential unnecessary requests.
+- You can extend this function to accept custom cancellation logic or customize the debouncing behavior if needed.
+
+**Code Example:**
+
+```typescript
+const searchBar = document.getElementById("search-bar");
+
+searchBar.addEventListener("keyup", async (event) => {
+  const searchTerm = event.target.value;
+  const response = await debouncedFetch(
+    `https://api.example.com/search?q=${searchTerm}`,
+    { method: "GET" }
+  );
+  // process the search results based on the response
+});
+```
+
+### 50. transformRecursively<T>(input: T | T[], predicate: (value: any) => boolean, newValue: any): T | T[]
+
+```typescript
+function transformRecursively<T>(
+  input: T | T[],
+  predicate: (value: any) => boolean,
+  newValue: any
+): T | T[] {
+  if (Array.isArray(input)) {
+    return input.map((item) => transformRecursively(item, predicate, newValue));
+  } else if (typeof input === "object" && input !== null) {
+    const result = {};
+    for (const key in input) {
+      result[key] = transformRecursively(input[key], predicate, newValue);
+    }
+    return result;
+  } else {
+    return predicate(input) ? newValue : input;
+  }
+}
+```
+
+**Space and Time Complexity:**
+
+- Space: O(n) where n is the number of elements in the input data structure (array or object). This is because the function needs to create new copies of the transformed elements and maintain them while processing the data.
+- Time: (O(n)) All elements trigger the transformation (predicate always returns true), leading to linear time complexity (O(n)), as the function needs to visit each element in the data structure.
+
+**Explanation:**
+
+- **TypeScript Generics:** The function uses generics (`<T>`) to ensure type safety and work with various input types.
+- **Base Cases:**
+  - Arrays: It maps over each element recursively, applying the transformation.
+  - Objects: It iterates through key-value pairs, recursively transforming each value.
+  - Primitives: It applies the predicate and returns `newValue` if truthy, otherwise returns the original value.
+- **Recursion:** The function calls itself for nested arrays and objects, ensuring thorough transformation.
+
+**Example Usage:**
+
+```typescript
+const data = {
+  items: [1, 2, 3, { nested: 4 }],
+  value: "hello",
+  other: true,
+};
+
+const transformed = transformRecursively(
+  data,
+  (value) => value > 2,
+  "replaced"
+);
+
+console.log(transformed);
+// Output: { items: [1, 2, 'replaced', { nested: 'replaced' }], value: 'hello', other: true }
+```
+
+**Key Points:**
+
+- It handles arrays, objects, and primitives effectively.
+- It's type-safe, ensuring reliable data manipulation.
+- It's concise and readable, making it easy to understand and use.
+- It's recursively adaptable to nested structures.

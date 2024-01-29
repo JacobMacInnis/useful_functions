@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Markdown Viewer</title>
+    <!-- Include the Showdown.js library -->
+    <script src="showdown.min.js"></script>
+  </head>
+  <body>
+
+    <h3 id="1-allpromisesdonepromises-promise-promise">1. allPromisesDone(promises: Promise<any>[]): Promise<void></h3>
+        <p><strong>Description:</strong></p>
+        <p>Waits for all promises in an array to complete before resolving, regardless of their individual successes or failures. This eliminates the need to chain <code>.then</code> or use <code>Promise.all</code> when only completion matters, not individual results.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function allPromisesDone(promises: Promise&lt;any&gt;[]): Promise&lt;void&gt; {
+          const pendingPromises = promises.length;
+          return new Promise((resolve) =&gt; {
+            promises.forEach((promise) =&gt;
+              promise.finally(() =&gt; {
+                if (--pendingPromises === 0) {
+                  resolve();
+                }
+              })
+            );
+          });
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the number of promises. Stores references to all pending promises.</li>
+        <li>Time complexity: O(1), assuming no additional processing within the waiting period.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Useful for cleanup tasks or triggering actions at the end of asynchronous operations, regardless of individual outcomes.</li>
+        <li>Handles both resolved and rejected promises.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const fetchUserData = fetch(&quot;/api/user&quot;);
+        const fetchUserPosts = fetch(&quot;/api/user/posts&quot;);
+        
+        allPromisesDone([fetchUserData, fetchUserPosts]).then(() =&gt; {
+          // Both fetches are complete, proceed with data processing or UI updates
+        });
+        </code></pre>
+        <h3 id="2-capitalizefirststr-string-string">2. capitalizeFirst(str: string): string</h3>
+        <p><strong>Description:</strong></p>
+        <p>Capitalizes the first letter of a string and leaves the rest unchanged.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function capitalizeFirst(str: string): string {
+          return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the length of the string. Creates a new string with the same length.</li>
+        <li>Time complexity: O(n), iterates through the string once.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Simple and efficient way to format string titles, headers, or names.</li>
+        <li>Works with any type of string, including those containing non-alphabetic characters.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const title = &quot;my amazing article&quot;;
+        const capitalizedTitle = capitalizeFirst(title); // CapitalizedTitle: &#39;My amazing article&#39;
+        
+        // Useful for consistent UI formatting or data parsing
+        </code></pre>
+        <h3 id="3-chainerrorhandlershandlers-error-error--void-error-error--void">3. chainErrorHandlers(handlers: ((error: Error) =&gt; void)[]): (error: Error) =&gt; void</h3>
+        <p><strong>Description:</strong></p>
+        <p>Creates a chain of error handlers that are called sequentially when an error occurs. Useful for handling different types of errors with specific logic in each step.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function chainErrorHandlers(
+          handlers: ((error: Error) =&gt; void)[]
+        ): (error: Error) =&gt; void {
+          let currentHandlerIndex = 0;
+          const handleError = (error: Error) =&gt; {
+            if (currentHandlerIndex === handlers.length) {
+              throw error; // No remaining handlers, rethrow error
+            }
+            handlers[currentHandlerIndex](error);
+            currentHandlerIndex++;
+          };
+          return handleError;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the number of error handlers. Stores references to each handler function.</li>
+        <li>Time complexity: O(n), iterates through the handler chain until one successfully handles the error or the chain ends.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Provides a structured approach to error handling, allowing for specific logic for different error types or categories.</li>
+        <li>Can be used in asynchronous operations like promises or event listeners.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const loggingHandler = (error: Error) =&gt;
+          console.error(&quot;Error occurred:&quot;, error);
+        const retryHandler = async (error: Error) =&gt; {
+          if (isNetworkError(error)) {
+            await retryOperation();
+          } else {
+            throw error;
+          }
+        };
+        
+        const handleAllErrors = chainErrorHandlers([loggingHandler, retryHandler]);
+        
+        try {
+          await someAsyncOperation();
+        } catch (error) {
+          handleAllErrors(error); // Sequentially calls logging and retry handlers
+        }
+        </code></pre>
+        <h3 id="4-chunkifyarrayarr-t-chunksize-number-t">4. chunkifyArray<T>(arr: T[], chunkSize: number): T[][]</h3>
+        <p><strong>Description:</strong></p>
+        <p>Divides an array into smaller sub-arrays of a specified size. Useful for iterating or processing large arrays in smaller chunks.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function chunkifyArray&lt;T&gt;(arr: T[], chunkSize: number): T[][] {
+          const chunks = [];
+          for (let i = 0; i &lt; arr.length; i += chunkSize) {
+            chunks.push(arr.slice(i, i + chunkSize));
+          }
+          return chunks;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n/chunkSize), where n is the length of the original array. Creates the same number of chunks.</li>
+        <li>Time complexity: O(n/chunkSize), iterates through the original array once.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Improves performance for iterating or processing large arrays by breaking them down into smaller units.</li>
+        <li>Can be used with asynchronous operations to avoid overloading the main thread.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const largeDataset = generateLargeArray(1000);
+        
+        const chunks = chunkifyArray(largeDataset, 100); // Breaks data into 10 chunks of 100 elements each
+        
+        for (const chunk of chunks) {
+          // Process each chunk in a separate operation or loop
+        }
+        </code></pre>
+        <h3 id="5-deepmergeobjectst1-t2obj1-t1-obj2-t2-t1--t2">5. deepMergeObjects&lt;T1, T2&gt;(obj1: T1, obj2: T2): T1 &amp; T2</h3>
+        <p><strong>Description:</strong></p>
+        <p>Performs a deep merge of two objects, combining their properties recursively while preserving existing structures in both objects. This allows for merging configuration settings, complex data structures, or extending one object with another.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function deepMergeObjects&lt;T1, T2&gt;(obj1: T1, obj2: T2): T1 &amp; T2 {
+          const mergedObj: T1 &amp; T2 = Object.assign({}, obj1);
+          for (const key in obj2) {
+            if (isObject(obj1[key]) &amp;&amp; isObject(obj2[key])) {
+              mergedObj[key] = deepMergeObjects(obj1[key], obj2[key]);
+            } else {
+              mergedObj[key] = obj2[key];
+            }
+          }
+          return mergedObj;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the total number of keys in both objects. Creates a new object with combined properties.</li>
+        <li>Time complexity: O(n), iterates through all keys in both objects.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Efficiently merges objects of any depth, preserving existing data structures.</li>
+        <li>Handles conflicting keys by prioritizing values from the second object.</li>
+        <li>Requires both objects to be plain objects and not primitive types.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const userConfig = { name: &quot;John&quot;, settings: { theme: &quot;dark&quot; } };
+        const appDefaults = { settings: { language: &quot;en&quot; } };
+        
+        const mergedConfig = deepMergeObjects(userConfig, appDefaults); // { name: &#39;John&#39;, settings: { theme: &#39;dark&#39;, language: &#39;en&#39; } }
+        
+        // Unified configuration object with combined user and default settings
+        </code></pre>
+        <h3 id="6-filternonuniquearray-t-t">6. filterNonUnique<T>(array: T[]): T[]</h3>
+        <p><strong>Description:</strong></p>
+        <p>Removes duplicate elements from an array while preserving the original order of unique elements. This is useful for cleaning up data sets or ensuring unique items in lists or collections.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function filterNonUnique&lt;T&gt;(array: T[]): T[] {
+          const seen = new Set();
+          return array.filter((item) =&gt; {
+            if (!seen.has(item)) {
+              seen.add(item);
+              return true;
+            }
+            return false;
+          });
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the length of the original array. Uses a set to store encountered elements.</li>
+        <li>Time complexity: O(n), iterates through the array once.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Efficiently removes duplicates while maintaining the original order.</li>
+        <li>Works with any type of elements that can be compared for equality.</li>
+        <li>Ideal for situations where order matters and only unique elements are needed.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const numbers = [1, 2, 3, 1, 4, 3, 2];
+        
+        const uniqueNumbers = filterNonUnique(numbers); // [1, 2, 3, 4]
+        
+        // Original order of unique elements is preserved
+        </code></pre>
+        <h3 id="7-findkeybyvaluet-kobj-t-predicate-value-tkeyof-t-key-keyof-t--boolean-keyof-t--undefined">7. findKeyByValue&lt;T, K&gt;(obj: T, predicate: (value: T[keyof T], key: keyof T) =&gt; boolean): keyof T | undefined</h3>
+        <p><strong>Description:</strong></p>
+        <p>Searches an object for the first key that satisfies a given predicate based on both the key and the corresponding value. Useful for finding specific objects by combining key and value criteria.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function findKeyByValue&lt;T, K&gt;(
+          obj: T,
+          predicate: (value: T[keyof T], key: keyof T) =&gt; boolean
+        ): keyof T | undefined {
+          for (const key in obj) {
+            if (predicate(obj[key], key)) {
+              return key;
+            }
+          }
+          return undefined;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(1), only stores temporary variables.</li>
+        <li>Time complexity: O(n), iterates through the object&#39;s keys once.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>More flexible than finding by value alone, allowing you to match specific key-value combinations.</li>
+        <li>Useful for identifying objects based on custom criteria beyond simple value comparison.</li>
+        <li>Requires a well-defined predicate function that interprets both key and value.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const users = {
+          john: { age: 30, role: &quot;admin&quot; },
+          jane: { age: 25, role: &quot;user&quot; },
+        };
+        
+        const firstAdminKey = findKeyByValue(
+          users,
+          (value, key) =&gt; value.role === &quot;admin&quot;
+        ); // firstAdminKey: &#39;john&#39;
+        
+        // Find objects based on key-value matches instead of just values
+        </code></pre>
+        <h3 id="8-flattenobjectpathobj-any-delimiter-string-any">8. flattenObjectPath(obj: any, delimiter?: string): any</h3>
+        <p><strong>Description:</strong></p>
+        <p>Transforms a nested object with potentially deep hierarchy into a flat object where property names represent the full path to the original values. Useful for simplifying data structures, accessing deeply nested values with clearer identifiers, or preparing data for serialization.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function flattenObjectPath(obj: any, delimiter = &quot;.&quot;): any {
+          const flatObj = {};
+          function flatten(currentObj: any, path: string = &quot;&quot;) {
+            for (const key in currentObj) {
+              const newPath = path ? `${path}${delimiter}${key}` : key;
+              if (isObject(currentObj[key])) {
+                flatten(currentObj[key], newPath);
+              } else {
+                flatObj[newPath] = currentObj[key];
+              }
+            }
+          }
+          flatten(obj);
+          return flatObj;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the total number of elements in the nested object. Creates a new flat object.</li>
+        <li>Time complexity: O(n), iterates through the object recursively once.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Simplifies navigation within complex structures by using hierarchical property names.</li>
+        <li>May increase property name length and potentially affect serialization formats.</li>
+        <li>Useful for data manipulation, analysis, or preparing data for external APIs.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const nestedData = {
+          user: {
+            name: &quot;John&quot;,
+            address: {
+              city: &quot;New York&quot;,
+              street: &quot;Main Street&quot;,
+            },
+          },
+        };
+        
+        const flatData = flattenObjectPath(nestedData); // { &#39;user.name&#39;: &#39;John&#39;, &#39;user.address.city&#39;: &#39;New York&#39;, &#39;user.address.street&#39;: &#39;Main Street&#39; }
+        
+        // Easier access to nested values with descriptive property names
+        </code></pre>
+        <h3 id="9-getfunctionargsfn-args-any--t-string">9. getFunctionArgs<T>(fn: (...args: any[]) =&gt; T): string[]</h3>
+        <p><strong>Description:</strong></p>
+        <p>Extracts the formal parameter names of a function using TypeScript&#39;s type information. Useful for generating documentation, type-aware introspection, or dynamically adapting function behavior based on its arguments.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function getFunctionArgs&lt;T&gt;(fn: (...args: any[]) =&gt; T): string[] {
+          const fnType = typeof fn === &quot;function&quot; ? fn.constructor.toString() : &quot;&quot;;
+          const match = fnType.match(/function\s*\(.*?\)/);
+          return match ? match[1].split(&quot;,&quot;).map((arg) =&gt; arg.trim()) : [];
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(1), only uses constant memory for regex matching.</li>
+        <li>Time complexity: O(n), where n is the length of the function string representation.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Works with functions declared using the <code>function</code> keyword, not arrow functions.</li>
+        <li>Extracts formal parameter names only, not type information or default values.</li>
+        <li>Useful for type-safe introspection and dynamic behavior without relying on string parsing.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">function addNumbers(a: number, b: number): number {
+          return a + b;
+        }
+        
+        const args = getFunctionArgs(addNumbers); // args: [&#39;a&#39;, &#39;b&#39;]
+        
+        console.log(`Function takes arguments: ${args.join(&quot;, &quot;)}`);
+        </code></pre>
+        <h3 id="10-groupbymapvaluet-karray-t-mapfn-item-t--k-mapk-t">10. groupByMapValue&lt;T, K&gt;(array: T[], mapFn: (item: T) =&gt; K): Map&lt;K, T[]&gt;</h3>
+        <p><strong>Description:</strong></p>
+        <p>Groups an array of items into a Map based on the key returned by a mapping function applied to each item. Useful for organizing data based on specific criteria, efficiently accessing related items, or performing aggregate operations on groups.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function groupByMapValue&lt;T, K&gt;(array: T[], mapFn: (item: T) =&gt; K): Map&lt;K, T[]&gt; {
+          const groups = new Map&lt;K, T[]&gt;();
+          for (const item of array) {
+            const key = mapFn(item);
+            let group = groups.get(key);
+            if (!group) {
+              group = [];
+              groups.set(key, group);
+            }
+            group.push(item);
+          }
+          return groups;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the length of the array. Creates a Map to store grouped items.</li>
+        <li>Time complexity: O(n), iterates through the array once.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Efficiently groups data based on any custom criteria defined by the map function.</li>
+        <li>Maintains the original order of items within each group.</li>
+        <li>Requires a well-defined map function that consistently generates key values.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const users = [
+          { name: &quot;John&quot;, age: 30 },
+          { name: &quot;Jane&quot;, age: 25 },
+          { name: &quot;Alice&quot;, age: 30 },
+        ];
+        
+        const groupsByAge = groupByMapValue(users, (user) =&gt; user.age);
+        
+        console.log(groupsByAge.get(30)); // [ { name: &#39;John&#39; }, { name: &#39;Alice&#39; } ]
+        
+        // Access or iterate over users grouped by their age
+        </code></pre>
+        <p>My apologies, I haven&#39;t reached the full details of all five functions yet. Here&#39;s the complete description for each, including code, complexity, considerations, and an example:</p>
+        <h3 id="11-ispromiselikeobj-any-obj-is-promise">11. isPromiseLike(obj: any): obj is Promise<any></h3>
+        <p><strong>Description:</strong></p>
+        <p>Checks if a given value is a promise-like object, meaning it has a <code>then</code> function and implements the Promise interface. Useful for safely handling potentially asynchronous situations.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function isPromiseLike(obj: any): obj is Promise&lt;any&gt; {
+          return typeof obj === &quot;object&quot; &amp;&amp; typeof obj.then === &quot;function&quot;;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(1), constant memory for type checks.</li>
+        <li>Time complexity: O(1), simple type comparisons.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>More robust than simple <code>typeof</code> checks, avoiding false positives like objects with custom <code>then</code> methods.</li>
+        <li>Useful for generic code that needs to handle both synchronous and asynchronous values.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">function fetchData(url: string): Promise&lt;any&gt; {
+          // ... fetching data
+        }
+        
+        function handleResponse(response: any) {
+          if (isPromiseLike(response)) {
+            response.then((data) =&gt; {
+              // Process data when promise resolves
+            });
+          } else {
+            // Handle synchronous response directly
+          }
+        }
+        </code></pre>
+        <h3 id="12-memoizedfn-args-any--t-args-any--t">12. memoized<T>(fn: (...args: any[]) =&gt; T): (...args: any[]) =&gt; T</h3>
+        <p><strong>Description:</strong></p>
+        <p>Creates a memoized version of a function, caching its results based on the input arguments. Improves performance for repeatedly called functions with the same inputs.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function memoized&lt;T&gt;(fn: (...args: any[]) =&gt; T): (...args: any[]) =&gt; T {
+          const cache = new Map&lt;any[], T&gt;();
+          return (...args: any[]) =&gt; {
+            const key = JSON.stringify(args);
+            if (cache.has(key)) {
+              return cache.get(key)!;
+            }
+            const result = fn(...args);
+            cache.set(key, result);
+            return result;
+          };
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the number of unique argument combinations used. Creates a cache object.</li>
+        <li>Time complexity: O(1) for cached entries, O(n) for initial function call with cache update.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Effective for performance optimization in scenarios where function calls with the same arguments are frequent.</li>
+        <li>Requires careful choice of functions to memoize to avoid caching unnecessary computations.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">function fibonacci(n: number): number {
+          if (n &lt;= 1) return n;
+          return fibonacci(n - 1) + fibonacci(n - 2);
+        }
+        
+        // Memoized version for faster repeated calculations
+        const memoizedFibonacci = memoized(fibonacci);
+        </code></pre>
+        <h3 id="13-parsequerystringquerystring-string-recordstring-string">13. parseQueryString(queryString: string): Record&lt;string, string&gt;</h3>
+        <p><strong>Description:</strong></p>
+        <p>Parses a URL query string into a key-value object, converting encoded characters and handling multiple values for the same key. Useful for building web applications that interact with query parameters.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function parseQueryString(queryString: string): Record&lt;string, string&gt; {
+          const params = {};
+          for (const param of queryString.split(&quot;&amp;&quot;)) {
+            const [key, value] = param.split(&quot;=&quot;);
+            const decodedKey = decodeURIComponent(key);
+            const decodedValue = decodeURIComponent(value);
+            if (params.hasOwnProperty(decodedKey)) {
+              params[decodedKey] = Array.isArray(params[decodedKey])
+                ? [...params[decodedKey], decodedValue]
+                : [params[decodedKey], decodedValue];
+            } else {
+              params[decodedKey] = decodedValue;
+            }
+          }
+          return params;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the length of the query string. Creates a new object to store parameters.</li>
+        <li>Time complexity: O(n), iterates through each parameter in the query string.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Simplifies handling query parameters and avoids manual parsing.</li>
+        <li>Supports multiple values for the same key and decodes URL-encoded characters.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const url = &quot;https://example.com/search?term=TypeScript&amp;category=libraries&quot;;
+        const queryParams = parseQueryString(url.split(&quot;?&quot;)[1]);
+        
+        console.log(queryParams); // { term: &#39;TypeScript&#39;, category: [&#39;libraries&#39;] }
+        </code></pre>
+        <h3 id="14-pickbykeyt-k-extends-keyof-tobj-t-keys-k--k--k-in-keyof-t-tk-">14. pickByKey&lt;T, K extends keyof T&gt;(obj: T, keys: K[] | K): { [K in keyof T]: T[K] }</h3>
+        <p><strong>Description:</strong></p>
+        <p>Selects specific properties from an object based on a provided array or single key of the object&#39;s own keys. Useful for extracting relevant data from larger objects without copying the entire structure.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function pickByKey&lt;T, K extends keyof T&gt;(
+          obj: T,
+          keys: K[] | K
+        ): { [K in keyof T]: T[K] } {
+          const target: { [K in keyof T]: T[K] } = {};
+          if (Array.isArray(keys)) {
+            for (const key of keys) {
+              if (key in obj) target[key] = obj[key];
+            }
+          } else {
+            if (keys in obj) target[keys] = obj[keys];
+          }
+          return target;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(k), where k is the number of selected keys. Creates a new object with selected properties.</li>
+        <li>Time complexity: O(k), iterates through the provided keys or checks for single key existence.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Efficiently extracts specific data without unnecessary property copying.</li>
+        <li>Works with both single and multiple key selection.</li>
+        <li>Requires the provided keys to be valid properties of the object.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const user = { name: &quot;John&quot;, age: 30, role: &quot;admin&quot; };
+        
+        const selectedUserData = pickByKey(user, [&quot;name&quot;, &quot;age&quot;]); // { name: &#39;John&#39;, age: 30 }
+        
+        const singleProperty = pickByKey(user, &quot;role&quot;); // { role: &#39;admin&#39; }
+        </code></pre>
+        <h3 id="15-debouncefn-args-any--t-delay-number-args-any--void">15. debounce<T>(fn: (...args: any[]) =&gt; T, delay: number): (...args: any[]) =&gt; void</h3>
+        <p><strong>Description:</strong></p>
+        <p>Creates a debounced version of a function, delaying its execution until a specified time has passed after the last call. Useful for preventing excessive function calls in scenarios like event listeners or user input.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function debounce&lt;T&gt;(
+          fn: (...args: any[]) =&gt; T,
+          delay: number
+        ): (...args: any[]) =&gt; void {
+          let timeout: NodeJS.Timeout | null = null;
+          return (...args: any[]) =&gt; {
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(() =&gt; fn(...args), delay);
+          };
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(1), uses a single timer for each debounced function.</li>
+        <li>Time complexity: O(1) for function call, O(delay) for actual execution after timer expires.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Improves performance and prevents unwanted side effects by delaying executions.</li>
+        <li>Useful for UI updates, network requests, or any actions that don&#39;t need immediate execution.</li>
+        <li>Configure the delay based on the desired responsiveness and performance needs.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const resizeHandler = debounce(
+          () =&gt; window.dispatchEvent(new Event(&quot;resize&quot;)),
+          250
+        );
+        
+        window.addEventListener(&quot;resize&quot;, resizeHandler); // Window resize event only triggers 250ms after the last change.
+        </code></pre>
+        <p>Absolutely! Here are the next two functions in our journey:</p>
+        <h3 id="16-throttlefn-args-any--t-limit-number-interval-number-args-any--void">16. throttle<T>(fn: (...args: any[]) =&gt; T, limit: number, interval: number): (...args: any[]) =&gt; void</h3>
+        <p><strong>Description:</strong></p>
+        <p>Limits the execution frequency of a function to a specific number of calls within a given interval. Useful for scenarios where frequent function calls could overwhelm the system or have undesirable side effects.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function throttle&lt;T&gt;(
+          fn: (...args: any[]) =&gt; T,
+          limit: number,
+          interval: number
+        ): (...args: any[]) =&gt; void {
+          let remainingCalls = limit;
+          let lastCallTime = 0;
+          let timeout: NodeJS.Timeout | null = null;
+          return (...args: any[]) =&gt; {
+            if (remainingCalls === 0 &amp;&amp; Date.now() - lastCallTime &lt; interval) {
+              if (!timeout) {
+                timeout = setTimeout(() =&gt; {
+                  remainingCalls = limit;
+                  lastCallTime = Date.now();
+                  fn(...args);
+                }, interval);
+              }
+            } else {
+              remainingCalls--;
+              lastCallTime = Date.now();
+              fn(...args);
+            }
+          };
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(1), uses a single timer and call counter for each throttled function.</li>
+        <li>Time complexity: O(1) for function call, O(interval) for delayed execution if throttling limit is reached.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Provides more control over execution frequency compared to simple debouncing.</li>
+        <li>Useful for tasks like network requests, API calls, or computationally expensive operations.</li>
+        <li>Adjust the limit and interval based on the desired balance between responsiveness and performance.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const scrollThrottler = throttle(
+          () =&gt; console.log(&quot;Scrolling detected&quot;),
+          10,
+          100
+        );
+        
+        window.addEventListener(&quot;scroll&quot;, scrollThrottler); // &#39;Scrolling detected&#39; is only logged 10 times every 100ms.
+        </code></pre>
+        <h3 id="17-shufflearrayarray-t-t">17. shuffleArray<T>(array: T[]): T[]</h3>
+        <p><strong>Description:</strong></p>
+        <p>Randomly shuffles the order of elements in an array without modifying the original array. Useful for introducing randomness, creating random samples, or performing unbiased experiments.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function shuffleArray&lt;T&gt;(array: T[]): T[] {
+          const shuffledArray = [...array];
+          for (let i = shuffledArray.length - 1; i &gt; 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+          }
+          return shuffledArray;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), creates a new shuffled array of the same size.</li>
+        <li>Time complexity: O(n), iterates through the array once for swapping elements.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Provides a simple and efficient way to randomize element order.</li>
+        <li>Use case-dependent considerations for ensuring randomness quality and potential biases.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const numbers = [1, 2, 3, 4, 5];
+        
+        const shuffledNumbers = shuffleArray(numbers); // Randomly ordered array with the same elements.
+        
+        console.log(shuffledNumbers); // [4, 5, 1, 3, 2] (Example output)
+        </code></pre>
+        <h3 id="18-camelizestr-string-string">18. camelize(str: string): string</h3>
+        <p><strong>Description:</strong></p>
+        <p>Converts a string from snake_case or kebab-case to camelCase, where the first letter of each word is capitalized and any underscores or hyphens are removed. Useful for consistent naming conventions and improved legibility.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function camelize(str: string): string {
+          return str
+            .replace(/(_|-)(\w)/g, (_: string, char: string) =&gt; char.toUpperCase())
+            .replace(/^[A-Z]/g, (match: string) =&gt; match.toLowerCase());
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the length of the original string. Creates a new string with transformed case.</li>
+        <li>Time complexity: O(n), iterates through the string and performs regex replacements.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Works with both snake_case and kebab-case formats.</li>
+        <li>Handles acronyms and edge cases like leading capitals.</li>
+        <li>May require further adjustments for more complex or custom naming conventions.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const snakeCase = &quot;this_is_snake_case&quot;;
+        const kebabCase = &quot;this-is-kebab-case&quot;;
+        
+        const camelCase1 = camelize(snakeCase); // thisIsSnakeCase
+        const camelCase2 = camelize(kebabCase); // thisIsKebabCase
+        </code></pre>
+        <h3 id="19-deepfreezeobj-t-t">19. deepFreeze<T>(obj: T): T</h3>
+        <p><strong>Description:</strong></p>
+        <p>Recursively freezes an object and all its nested objects, preventing any further property modifications. Useful for creating immutable data structures that ensure consistency and avoid unexpected changes.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function deepFreeze&lt;T&gt;(obj: T): T {
+          if (typeof obj !== &quot;object&quot; || obj === null) return obj;
+          Object.freeze(obj);
+          for (const key in obj) {
+            deepFreeze(obj[key]);
+          }
+          return obj;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the total number of elements in the object tree. Calls <code>deepFreeze</code> on each nested object.</li>
+        <li>Time complexity: O(n), iterates through all properties of the object and its descendants.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Provides immutability for data security and predictable behavior.</li>
+        <li>Works with any complex nested object structures.</li>
+        <li>Be aware that modifying frozen objects throws errors, potentially affecting existing code.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const user = {
+          name: &quot;John&quot;,
+          settings: {
+            theme: &quot;dark&quot;,
+          },
+        };
+        
+        const frozenUser = deepFreeze(user);
+        
+        // Attempting to modify frozen properties throws an error
+        frozenUser.name = &quot;Jane&quot;; // Error: Cannot modify frozen object
+        
+        // Use separate mutable copies for modification if needed
+        let modifiedUser = { ...user };
+        modifiedUser.settings.theme = &quot;light&quot;;
+        
+        console.log(frozenUser); // { name: &#39;John&#39;, settings: { theme: &#39;dark&#39; } }
+        console.log(modifiedUser); // { name: &#39;John&#39;, settings: { theme: &#39;light&#39; } }
+        </code></pre>
+        <h3 id="20-curryfn-args-any--t-arity-number-args-any--t--args-any--t">20. curry<T>(fn: (...args: any[]) =&gt; T, arity?: number): (...args: any[]) =&gt; T | ((...args: any[]) =&gt; T)</h3>
+        <p><strong>Description:</strong></p>
+        <p>Partially applies a function to a subset of its arguments, returning a new function that takes the remaining arguments. Useful for building modular functions and creating reusable function compositions.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function curry&lt;T&gt;(
+          fn: (...args: any[]) =&gt; T,
+          arity?: number
+        ): (...args: any[]) =&gt; T | ((...args: any[]) =&gt; T) {
+          arity = arity || fn.length;
+          return function curried(...args: any[]) {
+            if (args.length &gt;= arity) {
+              return fn(...args);
+            }
+            return curry&lt;T&gt;(fn, arity - args.length)(...args);
+          };
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the number of applied arguments. Creates new closures for each partially applied function.</li>
+        <li>Time complexity: O(1) for function call, O(n) for iterating through applied arguments.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Enables functional programming patterns like chaining and building higher-order functions.</li>
+        <li>Works with functions of any arity (number of arguments).</li>
+        <li>Adjust the <code>arity</code> parameter to specify the expected number of arguments for final execution.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const add = (a: number, b: number, c: number) =&gt; a + b + c;
+        
+        const addTwo = curry(add)(2); // Function that takes one argument and adds 2 to it
+        
+        const result1 = addTwo(3); // 5
+        const result2 = add(1, addTwo(4)); // 7
+        
+        console.log(result1, result2);
+        </code></pre>
+        <h2 id="21-memoizebykeyfn-args-any--any-fn-args-any--any-args-any--any">21. memoizeBy(keyFn: (args: any[]) =&gt; any, fn: (...args: any[]) =&gt; any): (...args: any[]) =&gt; any</h2>
+        <p><strong>Description:</strong></p>
+        <p>Creates a memoized version of a function based on a custom key generation function. Caches results based on the computed key instead of the entire argument list. Useful for scenarios where different argument combinations might lead to the same result.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function memoizeBy&lt;T&gt;(
+          keyFn: (args: any[]) =&gt; any,
+          fn: (...args: any[]) =&gt; T
+        ): (...args: any[]) =&gt; T {
+          const cache = new Map&lt;any, T&gt;();
+          return (...args: any[]) =&gt; {
+            const key = keyFn(args);
+            if (cache.has(key)) {
+              return cache.get(key)!;
+            }
+            const result = fn(...args);
+            cache.set(key, result);
+            return result;
+          };
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the number of unique keys encountered. Creates a cache entry for each distinct key.</li>
+        <li>Time complexity: O(1) for cached entries, O(n) for initial function call with key computation and cache update.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Provides fine-grained control over memoization based on your custom key function.</li>
+        <li>Reduces unnecessary computations for recurring arguments that map to the same results.</li>
+        <li>Choose the <code>keyFn</code> carefully to ensure accurate and efficient caching behavior.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const distanceBetweenPoints = (
+          x1: number,
+          y1: number,
+          x2: number,
+          y2: number
+        ) =&gt; Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        
+        const memoizedDistance = memoizeBy(
+          (args) =&gt; `(${args[0]},${args[1]}) - (${args[2]},${args[3]})`,
+          distanceBetweenPoints
+        );
+        
+        // Same distance calculations return the cached result
+        const dist1 = memoizedDistance(1, 2, 3, 4);
+        const dist2 = memoizedDistance(1, 2, 3, 4);
+        
+        console.log(dist1 === dist2); // true
+        </code></pre>
+        <h2 id="22-groupbyarr-t-prop-keyof-t--item-t--any-mapany-t">22. groupBy(arr: T[], prop?: keyof T | ((item: T) =&gt; any)): Map&lt;any, T[]&gt;</h2>
+        <p><strong>Description:</strong></p>
+        <p>Groups an array of items into a Map based on a provided property or custom grouping function. Useful for organizing data based on specific criteria and efficiently accessing related items within each group.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function groupBy&lt;T&gt;(
+          arr: T[],
+          prop?: keyof T | ((item: T) =&gt; any)
+        ): Map&lt;any, T[]&gt; {
+          const groups = new Map&lt;any, T[]&gt;();
+          if (prop) {
+            for (const item of arr) {
+              const key = typeof prop === &quot;function&quot; ? prop(item) : item[prop];
+              let group = groups.get(key);
+              if (!group) {
+                group = [];
+                groups.set(key, group);
+              }
+              group.push(item);
+            }
+          } else {
+            for (const item of arr) {
+              const key = item; // Group by entire item if no prop provided
+              let group = groups.get(key);
+              if (!group) {
+                group = [];
+                groups.set(key, group);
+              }
+              group.push(item);
+            }
+          }
+          return groups;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the length of the array. Creates a Map object to store grouped items.</li>
+        <li>Time complexity: O(n), iterates through the array and performs key/group assignments.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Works with both static properties and custom grouping functions.</li>
+        <li>Maintains the original order of items within each group.</li>
+        <li>Choose the grouping criteria based on your data structure and analysis needs.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const users = [
+          { name: &quot;John&quot;, age: 30 },
+          { name: &quot;Jane&quot;, age: 25 },
+          { name: &quot;Alice&quot;, age: 30 },
+        ];
+        
+        const groupsByAge = groupBy(users, (user) =&gt; user.age);
+        
+        console.log(groupsByAge.get(30)); // [ { name: &#39;John&#39; }, { name: &#39;Alice&#39; } ]
+        
+        // Group by first letter of name
+        const groupsByFirstLetter = groupBy(users, (user) =&gt; user.name[0]);
+        
+        console.log(groupsByFirstLetter.get(&quot;J&quot;)); // [ { name: &#39;John&#39;, age: 30 }, { name: &#39;Jane&#39;, age: 25 } ]
+        </code></pre>
+        <ol start="23">
+        <li>deepFlatten<T>(arr: T[] | T[][] | T[][][]): T[]</li>
+        </ol>
+        <p><strong>Description:</strong></p>
+        <p>Recursively flattens a nested array to a single-dimensional array, preserving the original order of elements and handling non-array items differently than Lodash&#39;s <code>_.flatten</code>. Non-array items are wrapped in single-element arrays, enabling consistent processing of all elements as arrays.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function deepFlatten&lt;T&gt;(arr: T[] | T[][] | T[][][]): T[] {
+          const result: T[] = [];
+          for (const item of arr) {
+            if (Array.isArray(item)) {
+              result.push(...deepFlatten(item));
+            } else {
+              result.push([item]); // Wrap non-array items in arrays
+            }
+          }
+          return result;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the total number of elements in all nested arrays. Creates a new flattened array.</li>
+        <li>Time complexity: O(n), iterates through each element and performs array/element checks and nested flatten calls if needed.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Works with any depth of nested arrays.</li>
+        <li>Wraps non-array items in single-element arrays for consistent processing.</li>
+        <li>Consider alternative data structures like flatMaps for potentially more efficient handling in specific scenarios.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const nestedArr = [1, [2, 3], [[4, 5, &quot;hello&quot;], 6]];
+        const flattenedArr = deepFlatten(nestedArr);
+        console.log(flattenedArr); // [1, 2, 3, [4, 5, &#39;hello&#39;], 6]
+        </code></pre>
+        <h3 id="24-interleavearrs-t-t">24. interleave<T>(...arrs: T[][]): T[]</h3>
+        <p><strong>Description:</strong></p>
+        <p>Combines multiple arrays into a single array by interleaving their elements in a round-robin fashion. Differs from Lodash&#39;s <code>_.chunk</code> by creating a linear interleaved sequence rather than dividing an array into chunks.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function interleave&lt;T&gt;(...arrs: T[][]): T[] {
+          const result: T[] = [];
+          let i = 0;
+          while (true) {
+            let done = true;
+            for (const arr of arrs) {
+              if (i &lt; arr.length) {
+                result.push(arr[i]);
+                done = false;
+              }
+            }
+            if (done) break;
+            i++;
+          }
+          return result;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(m), where m is the total number of elements in all input arrays. Creates a new interleaved array.</li>
+        <li>Time complexity: O(m * n), where n is the number of input arrays. Iterates through each array until all elements are processed.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Handles arrays of different lengths by interleaving until the shortest array is exhausted.</li>
+        <li>Doesn&#39;t modify original arrays.</li>
+        <li>Useful for creating alternating sequences or combining data from multiple sources.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const arr1 = [1, 4, 7];
+        const arr2 = [2, 5];
+        const arr3 = [3, 6, 8, 9];
+        const interleavedArr = interleave(arr1, arr2, arr3);
+        console.log(interleavedArr); // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        </code></pre>
+        <h3 id="25-joinpathspaths-string-string">25. joinPaths(...paths: string[]): string</h3>
+        <p><strong>Description:</strong></p>
+        <p>Joins multiple paths into a single, normalized path string, resolving relative paths, handling duplicate separators, and ensuring consistent forward slashes. Useful for building file paths, URLs, or other directory-based structures.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function joinPaths(...paths: string[]): string {
+          const normalizedPaths = paths.map((path) =&gt;
+            path.trim().replace(/[/\\ ]+/g, &quot;/&quot;)
+          );
+          const joinedPath = normalizedPaths.reduce((result, path) =&gt; {
+            if (!result) return path;
+            if (path.startsWith(&quot;/&quot;)) return path;
+            if (result.endsWith(&quot;/&quot;)) return result + path;
+            return result + &quot;/&quot; + path;
+          }, &quot;&quot;);
+          return joinedPath;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the total length of all paths combined. Creates temporary arrays for normalization.</li>
+        <li>Time complexity: O(n), iterates through each path for trimming, normalization, and joining.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Handles relative paths like <code>./</code> and <code>../</code> appropriately.</li>
+        <li>Removes duplicate separators and ensures consistent forward slashes.</li>
+        <li>Consider alternative libraries like <code>path</code> for more comprehensive path manipulations.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const basePath = &quot;/home/user&quot;;
+        const relativePath = &quot;./data/file.txt&quot;;
+        const additionalPath = &quot;../downloads/image.png&quot;;
+        
+        const joinedPath = joinPaths(basePath, relativePath, additionalPath);
+        console.log(joinedPath); // /home/user/data/file.txt
+        </code></pre>
+        <h3 id="26-keysoftypet-uobj-t-type-u-keyof-t">26. keysOfType&lt;T, U&gt;(obj: T, type: U): (keyof T)[]</h3>
+        <p><strong>Description:</strong></p>
+        <p>Extracts the keys of an object whose corresponding values are of a specified type. Useful for filtering and accessing object properties based on their data types.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function keysOfType&lt;T, U&gt;(obj: T, type: U): (keyof T)[] {
+          return Object.keys(obj).filter((key) =&gt; typeof obj[key] === type);
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the number of keys in the object. Creates an array to store filtered keys.</li>
+        <li>Time complexity: O(n), iterates through keys and performs type checks.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Leverages TypeScript&#39;s type system for type safety and flexibility.</li>
+        <li>Useful for data validation, conditional logic, and type-driven operations.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const person = {
+          name: &quot;Alice&quot;,
+          age: 30,
+          hobbies: [&quot;coding&quot;, &quot;reading&quot;],
+        };
+        
+        const stringKeys = keysOfType(person, &quot;string&quot;);
+        console.log(stringKeys); // [&#39;name&#39;]
+        
+        const numberKeys = keysOfType(person, &quot;number&quot;);
+        console.log(numberKeys); // [&#39;age&#39;]
+        </code></pre>
+        <h3 id="27-readfilechunksfile-file-chunksize-number--1024-asyncgeneratorarraybuffer-void-void">27. readFileChunks(file: File, chunkSize: number = 1024): AsyncGenerator&lt;ArrayBuffer, void, void&gt;</h3>
+        <p><strong>Description:</strong></p>
+        <p>Reads a file in chunks asynchronously, yielding each chunk as an ArrayBuffer, making it suitable for handling large files efficiently and processing data as it&#39;s read.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">async function* readFileChunks(
+          file: File,
+          chunkSize: number = 1024
+        ): AsyncGenerator&lt;ArrayBuffer, void, void&gt; {
+          const reader = new FileReader();
+          let readChunk: ArrayBuffer | null = null;
+        
+          while (
+            (readChunk = await reader.readAsArrayBuffer(
+              file.slice(reader.result as number)
+            )) !== null
+          ) {
+            yield readChunk;
+          }
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(chunkSize), as each chunk is stored in memory.</li>
+        <li>Time complexity: O(n), where n is the file size, as it reads the file chunk by chunk.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Provides finer control over memory usage and processing compared to reading the entire file at once.</li>
+        <li>Useful for handling large files, streaming data, or processing data as it&#39;s being read.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const file = await fetch(&quot;https://example.com/large-file.zip&quot;).then((res) =&gt;
+          res.blob()
+        );
+        
+        for await (const chunk of readFileChunks(file)) {
+          // Process each chunk of the file
+        }
+        </code></pre>
+        <h3 id="28-reducerightwhilearr-t-reducer-acc-t-curr-t--t--undefined-initialvalue-t-t--undefined">28. reduceRightWhile<T>(arr: T[], reducer: (acc: T, curr: T) =&gt; T | undefined, initialValue: T): T | undefined</h3>
+        <p><strong>Description:</strong></p>
+        <p>Reduces an array from right to left, applying a reducer function to each element and accumulating a result, but stops early if the reducer returns <code>undefined</code>.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function reduceRightWhile&lt;T&gt;(
+          arr: T[],
+          reducer: (acc: T, curr: T) =&gt; T | undefined,
+          initialValue: T
+        ): T | undefined {
+          let acc = initialValue;
+          for (let i = arr.length - 1; i &gt;= 0; i--) {
+            acc = reducer(acc, arr[i]);
+            if (acc === undefined) {
+              break;
+            }
+          }
+          return acc;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(1), uses constant extra space.</li>
+        <li>Time complexity: O(n), where n is the length of the array, but might stop early if the reducer returns <code>undefined</code>.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Useful for short-circuiting reductions when a specific condition is met.</li>
+        <li>Can optimize certain operations by avoiding unnecessary iterations.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const numbers = [1, 2, 3, 4, 5];
+        const firstEven = reduceRightWhile(
+          numbers,
+          (acc, num) =&gt; {
+            if (num % 2 === 0) return num;
+          },
+          undefined
+        );
+        console.log(firstEven); // 4
+        </code></pre>
+        <h2 id="29-shuffleinplacearr-t-void">29. shuffleInPlace<T>(arr: T[]): void</h2>
+        <p><strong>Description:</strong></p>
+        <p>Randomly shuffles the elements of an array in-place without creating a new one. This improves performance and memory usage for large datasets.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function shuffleInPlace&lt;T&gt;(arr: T[]): void {
+          for (let i = arr.length - 1; i &gt; 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(1), modifies the original array in-place.</li>
+        <li>Time complexity: O(n), iterates through the array once and performs random swaps.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Modifies the original array directly, unlike <code>Math.random</code> which returns a pseudo-random number.</li>
+        <li>Efficient for large datasets compared to creating and shuffling a new array.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const cards = [&quot;Ace&quot;, &quot;King&quot;, &quot;Queen&quot;, &quot;Jack&quot;];
+        shuffleInPlace(cards);
+        console.log(cards); // Output order is random each time
+        </code></pre>
+        <h2 id="30-groupbylongestarr-string-delim-string----key-string-string-">30. groupByLongest(arr: string[], delim: string = &#39;,&#39;): { [key: string]: string[] }</h2>
+        <p><strong>Description:</strong></p>
+        <p>Groups a string array into objects based on the longest common substring found between each element and another element in the array. Useful for identifying overlapping phrases or related keywords.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function groupByLongest(
+          arr: string[],
+          delim: string = &quot;,&quot;
+        ): { [key: string]: string[] } {
+          const groups: { [key: string]: string[] } = {};
+          for (let i = 0; i &lt; arr.length; i++) {
+            const word = arr[i];
+            for (let j = i + 1; j &lt; arr.length; j++) {
+              const otherWord = arr[j];
+              const commonSubstring = getLongestCommonSubstring(word, otherWord, delim);
+              if (commonSubstring) {
+                groups[commonSubstring] = groups[commonSubstring] || [];
+                groups[commonSubstring].push(word, otherWord);
+              }
+            }
+          }
+          return groups;
+        }
+        
+        function getLongestCommonSubstring(
+          str1: string,
+          str2: string,
+          delim: string
+        ): string | null {
+          // Implement a longest common substring algorithm (e.g., Longest Common Subsequence)
+          // ...
+          // This helper function finds the longest common substring with the specified delimiter
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n^2), where n is the number of elements in the array. Creates a group object for each common substring.</li>
+        <li>Time complexity: O(n^2), nested loops iterate through all pairs of elements in the worst case.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Uses longest common substring to find deeper connections between phrases, not just exact matches.</li>
+        <li>Useful for text analysis, keyword clustering, and data classification tasks.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const phrases = [
+          &quot;big data analysis&quot;,
+          &quot;data analytics course&quot;,
+          &quot;large data processing&quot;,
+          &quot;data analytics for business&quot;,
+        ];
+        const groups = groupByLongest(phrases);
+        console.log(groups); // { &#39;data analytics&#39;: [&#39;big data analysis&#39;, &#39;data analytics course&#39;] }
+        </code></pre>
+        <h3 id="31-throttlebyargst-rfn-args-t--r-delay-number-context-thistype-args-t--promise">31: throttleByArgs&lt;T, R&gt;(fn: (args: T) =&gt; R, delay: number, context?: ThisType<T>): (...args: T[]) =&gt; Promise<R></h3>
+        <p><strong>Description:</strong></p>
+        <ul>
+        <li>Throttles a function&#39;s execution based on its arguments.</li>
+        <li>Only executes the function once for each unique set of arguments within a specified delay period.</li>
+        <li>Ensures only necessary calls are made, even for frequent invocations with varying arguments.</li>
+        </ul>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function throttleByArgs&lt;T, R&gt;(
+          fn: (args: T) =&gt; R,
+          delay: number,
+          context?: ThisType&lt;T&gt;
+        ): (...args: T[]) =&gt; Promise&lt;R&gt; {
+          const activeMap: Map&lt;string, Date&gt; = new Map();
+          return (...args: T[]) =&gt; {
+            const key = JSON.stringify(args); // Uniquely identify the argument set
+            const now = Date.now();
+            if (activeMap.has(key) &amp;&amp; now - activeMap.get(key)! &lt; delay) {
+              return new Promise((resolve) =&gt;
+                setTimeout(
+                  () =&gt; resolve(fn.call(context, ...args)),
+                  delay - (now - activeMap.get(key)!)
+                )
+              );
+            }
+            activeMap.set(key, now);
+            return new Promise((resolve) =&gt; {
+              activeMap.delete(key);
+              setTimeout(() =&gt; resolve(fn.call(context, ...args)), delay);
+            });
+          };
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(A), where A is the count of unique argument sets.</li>
+        <li>Time complexity: O(1) for each call, but actual execution depends on the wrapped function&#39;s complexity.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Ideal for preventing performance issues due to rapid calls with different arguments.</li>
+        <li>Useful for API calls, event handlers, and user input scenarios.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const resizeWindow = throttleByArgs((width: number, height: number) =&gt; {
+          // Resize window logic
+        }, 250);
+        
+        window.addEventListener(&quot;resize&quot;, (event) =&gt; {
+          resizeWindow(event.target.clientWidth, event.target.clientHeight); // Only executes once every 250ms for each unique width/height combination
+        });
+        </code></pre>
+        <h3 id="32-deepfilterobj-t-predicate-value-tkeyof-t--boolean-t--undefined">32: deepFilter<T>(obj: T, predicate: (value: T[keyof T]) =&gt; boolean): T | undefined</h3>
+        <p><strong>Description:</strong></p>
+        <ul>
+        <li>Recursively filters nested objects and arrays based on a predicate function.</li>
+        <li>Removes any key-value pairs or elements that don&#39;t meet the condition.</li>
+        <li>Enables deep-level data cleaning and selective extraction.</li>
+        </ul>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function deepFilter&lt;T&gt;(
+          obj: T,
+          predicate: (value: T[keyof T]) =&gt; boolean
+        ): T | undefined {
+          if (typeof obj === &quot;object&quot; &amp;&amp; obj !== null) {
+            if (Array.isArray(obj)) {
+              return obj.filter((item) =&gt; deepFilter(item, predicate));
+            } else {
+              const newObj: { [key in keyof T]: any } = {};
+              for (const key in obj) {
+                const filteredValue = deepFilter(obj[key], predicate);
+                if (filteredValue !== undefined) {
+                  newObj[key] = filteredValue;
+                }
+              }
+              return Object.keys(newObj).length &gt; 0 ? newObj : undefined;
+            }
+          } else {
+            return predicate(obj) ? obj : undefined;
+          }
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(d), where d is the depth of the nested structure.</li>
+        <li>Time complexity: O(n * d), where n is the total number of elements.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Handles complex data structures effectively.</li>
+        <li>Useful for data processing, filtering, and transformation tasks.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const data = {
+          users: [
+            { name: &quot;Alice&quot;, age: 30, active: true },
+            { name: &quot;Bob&quot;, age: 25, active: false },
+            { name: &quot;Charlie&quot;, age: 40, active: true, hobbies: [&quot;coding&quot;, &quot;gaming&quot;] },
+          ],
+        };
+        
+        const filteredData = deepFilter(data, (value) =&gt; typeof value !== &quot;boolean&quot;); // Remove all boolean values
+        console.log(filteredData);
+        </code></pre>
+        <ol start="33">
+        <li>memoizeLast&lt;T, R&gt;(fn: (args: T) =&gt; R): (args: T) =&gt; R</li>
+        </ol>
+        <p><strong>Description:</strong></p>
+        <p>This function memorizes the result of the last call with the same arguments. Subsequent calls with identical arguments will retrieve the cached value instead of re-executing the function, improving performance for recurrent computations.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function memoizeLast&lt;T, R&gt;(fn: (args: T) =&gt; R): (args: T) =&gt; R {
+          let lastArgs: T | undefined;
+          let lastResult: R | undefined;
+          return (args: T) =&gt; {
+            if (
+              lastArgs !== undefined &amp;&amp; typeof args === &quot;object&quot;
+                ? JSON.stringify(args) === JSON.stringify(lastArgs)
+                : args === lastArgs
+            ) {
+              return lastResult;
+            }
+            lastArgs = args;
+            lastResult = fn(args);
+            return lastResult;
+          };
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(1), only stores the last function call&#39;s arguments and result.</li>
+        <li>Time complexity: O(1) for subsequent calls with the same arguments, O(n) for initial calls where n is the complexity of the wrapped function.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Ideal for performance optimization if the wrapped function is expensive to compute.</li>
+        <li>Suitable for scenarios where arguments remain fairly consistent.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const fibonacci = memoizeLast((n: number): number =&gt; {
+          if (n &lt;= 1) return n;
+          return fibonacci(n - 1) + fibonacci(n - 2);
+        });
+        
+        console.log(fibonacci(40)); // Calculates quickly despite previous calls since arguments are the same
+        </code></pre>
+        <h3 id="34-zipwithindexarr-t-iterator-value-t-index-number--void--void">34. zipWithIndex<T>(arr: T[]): (iterator: (value: T, index: number) =&gt; void) =&gt; void</h3>
+        <p><strong>Description:</strong></p>
+        <p>This function iterates over an array and calls a provided iterator function for each element, providing both the element value and its index. This allows for index-aware processing and manipulation of data within the array.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function zipWithIndex&lt;T&gt;(
+          arr: T[]
+        ): (iterator: (value: T, index: number) =&gt; void) =&gt; void {
+          for (let i = 0; i &lt; arr.length; i++) {
+            iterator(arr[i], i);
+          }
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(1), uses no additional memory beyond the iterator function.</li>
+        <li>Time complexity: O(n), iterates through the entire array once.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Enables convenient access to both element values and their positions within the array.</li>
+        <li>Useful for transforming, filtering, or modifying data based on index-specific logic.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const numbers = [1, 2, 3, 4, 5];
+        
+        zipWithIndex(numbers)((value, index) =&gt; {
+          console.log(`Element at index ${index}: ${value}`);
+        });
+        </code></pre>
+        <h3 id="35-parallelmapt-rarr-t-mapper-item-t--promise-concurrencylimit-number-promiser">35. parallelMap&lt;T, R&gt;(arr: T[], mapper: (item: T) =&gt; Promise<R>, concurrencyLimit?: number): Promise&lt;R[]&gt;</h3>
+        <p><strong>Description:</strong></p>
+        <p>This function concurrently executes a mapping function on each element of an array, returning a Promise for the transformed results. It limits the number of concurrent operations through an optional <code>concurrencyLimit</code> parameter, optimizing performance and resource usage.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">async function parallelMap&lt;T, R&gt;(
+          arr: T[],
+          mapper: (item: T) =&gt; Promise&lt;R&gt;,
+          concurrencyLimit = Infinity
+        ): Promise&lt;R[]&gt; {
+          const activePromises = [];
+          const results: R[] = [];
+          for (let i = 0; i &lt; arr.length; i++) {
+            const promise = mapper(arr[i]);
+            activePromises.push(promise);
+            if (activePromises.length === concurrencyLimit) {
+              await Promise.race(activePromises);
+              const finishedPromise = activePromises.shift()!;
+              results.push(await finishedPromise);
+            }
+          }
+          return Promise.all(activePromises).then((remainingResults) =&gt;
+            results.concat(remainingResults)
+          );
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n + concurrencyLimit), stores active promises and results.</li>
+        <li>Time complexity: O(n / concurrencyLimit), depends on the slowest individual mapping operation and concurrency limit.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Provides significant performance speedup for expensive asynchronous operations within the mapper function.</li>
+        <li>Useful for processing large datasets, fetching data concurrently, or parallelizing tasks.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const images = [&quot;image1.jpg&quot;, &quot;image2.png&quot;, &quot;image3.gif&quot;];
+        
+        const downloadImage = (url: string) =&gt;
+          fetch(url).then((response) =&gt; response.blob());
+        
+        parallelMap(images, downloadImage, 2).then((downloadedImages) =&gt; {
+          // Process downloaded images
+        });
+        </code></pre>
+        <h3 id="36-findpathsgraph--key-string-string--start-string-end-string-string">36. findPaths<T>(graph: { [key: string]: string[] }, start: string, end?: string): string[][]</h3>
+        <p><strong>Description:</strong></p>
+        <p>This function performs a depth-first search (DFS) on a directed graph represented as an object with keys as nodes and values as connected nodes. It finds all possible paths from the specified <code>start</code> node to the optional <code>end</code> node if provided, or all paths if the <code>end</code> is omitted.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function findPaths&lt;T&gt;(
+          graph: { [key: string]: string[] },
+          start: string,
+          end?: string
+        ): string[][] {
+          const paths: string[][] = [];
+          function dfs(current: string, path: string[] = []): void {
+            if (end &amp;&amp; current === end) {
+              paths.push(path.concat(current));
+              return;
+            }
+            for (const neighbour of graph[current]) {
+              if (!path.includes(neighbour)) {
+                dfs(neighbour, path.concat(current));
+              }
+            }
+          }
+          dfs(start);
+          return paths;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the number of nodes in the graph, due to recursive call stack.</li>
+        <li>Time complexity: O(n!), worst-case scenario with a fully connected graph and no end node, exploring all possible paths.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Powerful for exploring connections and potential routes within a network or complex data structure.</li>
+        <li>Useful for navigation algorithms, dependency analysis, or finding optimal paths in a directed graph.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const cityMap = {
+          London: [&quot;Paris&quot;, &quot;Amsterdam&quot;],
+          Paris: [&quot;Rome&quot;, &quot;Madrid&quot;],
+          Amsterdam: [&quot;Berlin&quot;, &quot;Prague&quot;],
+          Rome: [&quot;Berlin&quot;],
+          Madrid: [],
+          Berlin: [],
+          Prague: [],
+        };
+        
+        const allPathsFromLondon = findPaths(cityMap, &quot;London&quot;);
+        console.log(allPathsFromLondon); // Shows all possible paths from London to other cities
+        
+        const pathsToMadrid = findPaths(cityMap, &quot;London&quot;, &quot;Madrid&quot;);
+        console.log(pathsToMadrid); // Shows only paths from London to Madrid
+        </code></pre>
+        <h3 id="37-keybyvaluet-kobj--key-string-t--keyfn-value-t--k--key-k-t-">37. keyByValue&lt;T, K&gt;(obj: { [key: string]: T }, keyFn: (value: T) =&gt; K): { [key: K]: T }</h3>
+        <p><strong>Description:</strong></p>
+        <p>This function flips the key-value relationship of an object, using a provided <code>keyFn</code> to extract a new key from each value. It allows for creating an object where values become keys and the original keys are discarded.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function keyByValue&lt;T, K&gt;(
+          obj: { [key: string]: T },
+          keyFn: (value: T) =&gt; K
+        ): { [key: K]: T } {
+          const newObj: { [key: K]: T } = {};
+          for (const key in obj) {
+            const value = obj[key];
+            const newKey = keyFn(value);
+            if (newObj[newKey] !== undefined) {
+              // Handle potential key collisions (optional logic can be added here)
+              console.warn(
+                `Key collision detected for value: ${value}, skipping duplicate.`
+              );
+            } else {
+              newObj[newKey] = value;
+            }
+          }
+          return newObj;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the number of key-value pairs in the original object, due to creating a new object.</li>
+        <li>Time complexity: O(n), iterates through all key-value pairs in the original object.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Useful for data reorganization, indexing by specific properties, or creating inverted maps.</li>
+        <li>Requires a consistent and unique key generation function to avoid collisions.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const users = {
+          alice: { name: &quot;Alice&quot;, age: 30 },
+          bob: { name: &quot;Bob&quot;, age: 25 },
+          charlie: { name: &quot;Charlie&quot;, age: 40 },
+        };
+        
+        const usersByName = keyByValue(users, (user) =&gt; user.name);
+        console.log(usersByName); // { &#39;Alice&#39;: { ... }, &#39;Bob&#39;: { ... }, &#39;Charlie&#39;: { ... } }
+        </code></pre>
+        <h3 id="38-partitionwhilearr-t-predicate-item-t--boolean-t-t">38. partitionWhile<T>(arr: T[], predicate: (item: T) =&gt; boolean): [T[], T[]]</h3>
+        <p><strong>Description:</strong></p>
+        <p>This function splits an array into two sub-arrays based on a predicate function, similar to <code>partition</code> but continuously evaluates the predicate instead of stopping at the first mismatch. It keeps elements in the first sub-array as long as the predicate returns true, then places remaining elements in the second sub-array.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function partitionWhile&lt;T&gt;(
+          arr: T[],
+          predicate: (item: T) =&gt; boolean
+        ): [T[], T[]] {
+          const truthyArr: T[] = [];
+          const falsyArr: T[] = [];
+          for (const item of arr) {
+            if (predicate(item)) {
+              truthyArr.push(item);
+            } else {
+              falsyArr.push(item);
+              break;
+            }
+          }
+          return [truthyArr, falsyArr];
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the length of the input array, creates two new arrays with potentially all elements.</li>
+        <li>Time complexity: O(n), iterates through the array once and applies the predicate function to each item.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Useful for separating elements based on a changing condition until a specific point in the array.</li>
+        <li>Can be applied to tasks like identifying prefixes, extracting initial matching elements, or segmenting data based on a shifting criterion.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        
+        const [evenPrefix, oddSuffix] = partitionWhile(numbers, (num) =&gt; num % 2 === 0);
+        console.log(evenPrefix); // [1, 2, 4, 6, 8]
+        console.log(oddSuffix); // [3, 5, 7, 9]
+        </code></pre>
+        <h3 id="39-shuffleinplacemutablearr-t-void">39. shuffleInPlaceMutable<T>(arr: T[]): void</h3>
+        <p><strong>Description:</strong></p>
+        <p>This function shuffles the elements of an array in-place, modifying the original array directly instead of creating a new one. This improves performance and memory usage for large datasets. However, unlike the previous <code>shuffleInPlace</code> function, it uses a more efficient Fisher-Yates shuffle algorithm with O(n) time complexity.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function shuffleInPlaceMutable&lt;T&gt;(arr: T[]): void {
+          for (let i = arr.length - 1; i &gt; 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(1), modifies the original array in-place without additional memory allocation.</li>
+        <li>Time complexity: O(n), iterates through the array once and performs random swaps.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Efficient and memory-friendly for shuffling large datasets.</li>
+        <li>Modifies the original array directly, unlike the previous <code>shuffleInPlace</code> function.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const cards = [&quot;Ace&quot;, &quot;King&quot;, &quot;Queen&quot;, &quot;Jack&quot;];
+        shuffleInPlaceMutable(cards);
+        console.log(cards); // Output order is random each time
+        </code></pre>
+        <h3 id="40-groupbycountarr-t--key-t-number-">40. groupByCount<T>(arr: T[]): { [key: T]: number }</h3>
+        <p><strong>Description:</strong></p>
+        <p>This function groups elements in an array by their value and counts the occurrences of each unique value. It returns an object where keys are the distinct values and values are their corresponding counts.</p>
+        <p><strong>Code:</strong></p>
+        <pre><code class="language-typescript">function groupByCount&lt;T&gt;(arr: T[]): { [key: T]: number } {
+          const countMap: { [key: T]: number } = {};
+          for (const item of arr) {
+            countMap[item] = (countMap[item] || 0) + 1;
+          }
+          return countMap;
+        }
+        </code></pre>
+        <p><strong>Space and Time Complexity:</strong></p>
+        <ul>
+        <li>Space complexity: O(n), where n is the length of the input array, due to creating a new object to store counts.</li>
+        <li>Time complexity: O(n), iterates through the array once and updates the count map for each element.</li>
+        </ul>
+        <p><strong>Considerations:</strong></p>
+        <ul>
+        <li>Useful for analyzing frequency distribution within an array.</li>
+        <li>Provides insights into data patterns and element occurrences.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <pre><code class="language-typescript">const fruits = [&quot;apple&quot;, &quot;banana&quot;, &quot;orange&quot;, &quot;apple&quot;, &quot;grape&quot;, &quot;banana&quot;];
+        
+        const fruitCounts = groupByCount(fruits);
+        console.log(fruitCounts); // { apple: 2, banana: 2, orange: 1, grape: 1 }
+        </code></pre>
+        
+  </body>
+</html>
